@@ -21,6 +21,8 @@ epochs = 10
 class_weight = [1, 3] if NEG_CLASS == 1 else [3, 1]
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+print(device)
+
 heatmap_thres = 0.7
 n_cv_folds = 5
 
