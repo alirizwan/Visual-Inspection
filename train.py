@@ -19,7 +19,7 @@ target_train_accuracy = 0.98
 lr = 0.0001
 epochs = 10
 class_weight = [1, 3] if NEG_CLASS == 1 else [3, 1]
-device = torch.device("cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 heatmap_thres = 0.7
 n_cv_folds = 5
