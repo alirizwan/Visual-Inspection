@@ -14,20 +14,18 @@ data_folder = "data/"
 subset_name = "doors"
 data_folder = os.path.join(data_folder, subset_name)
 
-batch_size = 10
+batch_size = 16
 target_train_accuracy = 0.98
 lr = 0.0001
-epochs = 10
+epochs = 30
 class_weight = [1, 3] if NEG_CLASS == 1 else [3, 1]
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-print(device)
 
 heatmap_thres = 0.7
 n_cv_folds = 5
 
 train_loader, test_loader = get_train_test_loaders(
-    root=data_folder, batch_size=batch_size, test_size=0.2, random_state=42,
+    root=data_folder, batch_size=batch_size, test_size=0.8, random_state=42,
 )
 
 model = CustomVGG()

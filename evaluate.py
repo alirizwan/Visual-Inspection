@@ -10,10 +10,9 @@ from utils.model import CustomVGG
 from utils.helper import train, evaluate, predict_localize
 from utils.constants import NEG_CLASS
 
-data_folder = "data/mvtec_anomaly_detection"
-subset_name = "leather"
+data_folder = "data/"
+subset_name = "doors"
 data_folder = os.path.join(data_folder, subset_name)
-
 batch_size = 10
 target_train_accuracy = 0.98
 lr = 0.0001

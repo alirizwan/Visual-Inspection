@@ -149,7 +149,7 @@ def predict_localize(
         probs, class_preds = torch.max(out[0], dim=-1)
         feature_maps = out[1].to("cpu")
 
-        for img_i in range(inputs.size(0)):
+        for img_i in range(inputs.size(0)):            
             img = transform_to_PIL(inputs[img_i])
             class_pred = class_preds[img_i]
             prob = probs[img_i]
@@ -179,6 +179,8 @@ def predict_localize(
                 plt.gca().add_patch(rectangle)
                 if show_heatmap:
                     plt.imshow(heatmap, cmap="Reds", alpha=0.3)
+
+            print(counter, n_samples)
 
             if counter == n_samples:
                 plt.tight_layout()
