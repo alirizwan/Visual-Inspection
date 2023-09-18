@@ -180,8 +180,6 @@ def predict_localize(
                 if show_heatmap:
                     plt.imshow(heatmap, cmap="Reds", alpha=0.3)
 
-            print(counter, n_samples)
-
             if counter == n_samples:
                 plt.tight_layout()
                 plt.show()

@@ -10,7 +10,7 @@ from utils.model import CustomVGG
 from utils.helper import train, evaluate, predict_localize
 from utils.constants import NEG_CLASS
 
-data_folder = "data1/"
+data_folder = "data/"
 subset_name = "doors"
 data_folder = os.path.join(data_folder, subset_name)
 
