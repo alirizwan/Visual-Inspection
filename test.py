@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from PIL import Image
+import cv2 as cv
 
 from utils.dataloader import get_train_test_loaders, get_cv_train_test_loaders, get_inference_loaders
 from utils.model import CustomVGG
@@ -31,6 +33,8 @@ data = get_inference_loaders(
 model_path = f"weights/{subset_name}_model.h5"
 model = torch.load(model_path, map_location=device)
 
-predict_localize(
-    model, data, device, thres=heatmap_thres, n_samples=8, show_heatmap=True
-)
+# predict_localize(model, data, device, thres=heatmap_thres, n_samples=8, show_heatmap=True)
+
+img = Image.open('./data1/doors/test/defect/230629_132116_0000038921_CAM1_NG.bmp.jpg')
+
+prob, class_pred, heatmap, result = predict(model, img, device, thres=heatmap_thres)

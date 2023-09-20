@@ -1,13 +1,13 @@
 import torch
 from torchvision import transforms
 import numpy as np
+import cv2 as cv
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 import seaborn as sns
 from sklearn.metrics import confusion_matrix, accuracy_score, balanced_accuracy_score
 
-from utils.constants import NEG_CLASS
-
+from utils.constants import NEG_CLASS, INPUT_IMG_SIZE
 
 def train(
     dataloader, model, optimizer, criterion, epochs, device, target_accuracy=None
@@ -144,13 +144,12 @@ def predict_localize(
 
     counter = 0
     for inputs, labels in dataloader:
-        print(inputs)
         inputs = inputs.to(device)
         out = model(inputs)
         probs, class_preds = torch.max(out[0], dim=-1)
         feature_maps = out[1].to("cpu")
 
-        for img_i in range(inputs.size(0)):            
+        for img_i in range(inputs.size(0)):
             img = transform_to_PIL(inputs[img_i])
             class_pred = class_preds[img_i]
             prob = probs[img_i]
@@ -161,11 +160,7 @@ def predict_localize(
             plt.subplot(n_rows, n_cols, counter)
             plt.imshow(img)
             plt.axis("off")
-            plt.title(
-                "Predicted: {}, Prob: {:.3f}, True Label: {}".format(
-                    class_names[class_pred], prob, class_names[label]
-                )
-            )
+            plt.title("Predicted: {}, Prob: {:.3f}, True Label: {}".format(class_names[class_pred], prob, class_names[label]))
 
             if class_pred == NEG_CLASS:
                 x_0, y_0, x_1, y_1 = get_bbox_from_heatmap(heatmap, thres)
@@ -186,59 +181,31 @@ def predict_localize(
                 plt.show()
                 return
             
-def predict(
-    model, img, device, thres=0.8, n_samples=9, show_heatmap=False
-):
+def predict(model, img, device, thres=0.8):
     model.to(device)
     model.eval()
 
-    convert_tensor = transforms.ToTensor()
-
+    transformer = transforms.Compose([transforms.Resize(INPUT_IMG_SIZE), transforms.ToTensor()])
     transform_to_PIL = transforms.ToPILImage()
 
-    n_cols = 3
-    n_rows = int(np.ceil(n_samples / n_cols))
-    plt.figure(figsize=[n_cols * 5, n_rows * 5])
-
-    convert_tensor(img)
-
-    inputs = img
-
+    inputs = transformer(img)
+    inputs = torch.unsqueeze(inputs, 0)
     inputs = inputs.to(device)
     out = model(inputs)
     probs, class_preds = torch.max(out[0], dim=-1)
     feature_maps = out[1].to("cpu")
 
-    for img_i in range(inputs.size(0)):            
+    for img_i in range(inputs.size(0)):
         img = transform_to_PIL(inputs[img_i])
         class_pred = class_preds[img_i]
         prob = probs[img_i]
         heatmap = feature_maps[img_i][NEG_CLASS].detach().numpy()
 
-        counter += 1
-        plt.subplot(n_rows, n_cols, counter)
-        plt.imshow(img)
-        plt.axis("off")
-        plt.title(
-            "Predicted: {}, Prob: {:.3f}".format(
-                prob
-            )
-        )
+        result = np.array(img)
+        result = result[:, :, ::-1].copy()
 
         if class_pred == NEG_CLASS:
             x_0, y_0, x_1, y_1 = get_bbox_from_heatmap(heatmap, thres)
-            rectangle = Rectangle(
-                (x_0, y_0),
-                x_1 - x_0,
-                y_1 - y_0,
-                edgecolor="red",
-                facecolor="none",
-                lw=3,
-            )
-            plt.gca().add_patch(rectangle)
-            if show_heatmap:
-                plt.imshow(heatmap, cmap="Reds", alpha=0.3)
+            cv.rectangle(result, (x_0, y_0), (x_1, y_1), [0, 0, 255], 3)
 
-        plt.tight_layout()
-        plt.show()
-        return
+        return prob, class_pred, heatmap, result
