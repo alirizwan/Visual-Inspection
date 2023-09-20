@@ -105,6 +105,15 @@ def get_train_test_loaders(root, batch_size, test_size=0.2, random_state=42):
     )
     return train_loader, test_loader
 
+def get_inference_loaders(root, batch_size):
+    dataset = MVTEC_AD_DATASET(root=root)
+
+    loader = DataLoader(
+        dataset, batch_size=batch_size,
+    )
+
+    return loader
+
 
 def get_cv_train_test_loaders(root, batch_size, n_folds=5):
     """
