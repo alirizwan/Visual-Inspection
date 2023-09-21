@@ -33,8 +33,34 @@ data = get_inference_loaders(
 model_path = f"weights/{subset_name}_model.h5"
 model = torch.load(model_path, map_location=device)
 
-# predict_localize(model, data, device, thres=heatmap_thres, n_samples=8, show_heatmap=True)
+predict_localize(model, data, device, thres=heatmap_thres, n_samples=12, show_heatmap=True)
 
-img = Image.open('./data1/doors/test/defect/230629_132116_0000038921_CAM1_NG.bmp.jpg')
+def it_predict():
+    input_folder = '/Users/alirizwan/Downloads/Preprocessor/output/NG'
+    nok_folder = './results/nok/'
+    ok_folder = './results/ok/'
 
-prob, class_pred, heatmap, result = predict(model, img, device, thres=heatmap_thres)
+    input_files = []
+
+    for file_path in os.listdir(input_folder):
+        if os.path.isfile(os.path.join(input_folder, file_path)):
+            input_files.append(file_path)
+
+    for image in input_files:
+
+        if(image == '.DS_Store'): continue
+
+        input_file_name = os.path.join(input_folder, image)
+
+        print('processing', input_file_name)
+
+        img = Image.open(input_file_name)
+
+        prob, class_pred, heatmap, result = predict(model, img, device, thres=heatmap_thres)
+
+        if (class_pred == 0):
+            cv.imwrite(ok_folder + image, result)
+        else:
+            cv.imwrite(nok_folder + image, result)
+
+#it_predict()
